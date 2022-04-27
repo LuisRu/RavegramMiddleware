@@ -2,8 +2,9 @@ package com.luis.ravegram.service;
 
 import java.util.List;
 
-import com.luis.ravegram.model.EventoDTO;
+import com.luis.ravegram.model.Results;
 import com.luis.ravegram.model.UsuarioEventoPuntuaDTO;
+import com.luis.ravegram.model.criteria.PuntuacionCriteria;
 import com.luis.ravegram.service.impl.PuntuacionServiceImpl;
 
 public class PuntuacionServiceTest {
@@ -22,19 +23,27 @@ public class PuntuacionServiceTest {
 		}
 	}
 	
-	public void testFindByEvento(){
-		System.out.println("Testing findyByEvento...");
+	
+	public void testFindByCriteria(){
+		System.out.println("Testing  testFindByCriteria...");
+		Results<UsuarioEventoPuntuaDTO> results = null;
+		PuntuacionCriteria uep = new PuntuacionCriteria();
 		try {
-			leerLista(puntuacionService.findByEvento(2l));	
+			uep.setIdEvento(1L);
+			results = puntuacionService.findByCriteria(uep,1,10);
+			leerLista(results.getData());	
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void testHistorialPuntuaciones(){
-		System.out.println("Testing historial puntuaciones...");
+	
+	public void testFindByEventosUsuario(){
+		System.out.println("Testing testFindByEventosUsuario...");
+		Results<UsuarioEventoPuntuaDTO> results = null;
 		try {
-			leerLista(puntuacionService.historialPuntuaciones(2l));	
+			results = puntuacionService.findByEventosUsuario(2l,1,10);
+			leerLista(results.getData());	
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -54,7 +63,7 @@ public class PuntuacionServiceTest {
 		System.out.println("Testing create...");
 		puntuacion = new UsuarioEventoPuntuaDTO();
 		try {
-			puntuacion.setIdUsuario(2L);
+			puntuacion.setIdUsuario(10L);
 			puntuacion.setIdEvento(2L);
 			puntuacion.setComentario("guay1");
 			puntuacion.setValoracion(5);
@@ -66,10 +75,10 @@ public class PuntuacionServiceTest {
 	
 	public static void main(String args[]) {
 		PuntuacionServiceTest test = new PuntuacionServiceTest();
-		//test.testUpdate();
+		test.testFindByCriteria();
+		test.testFindByEventosUsuario();
 		test.testCreate();
-//		test.testFindByEvento();
-//		test.testHistorialPuntuaciones();
+		test.testUpdate();
 		
 		}
 

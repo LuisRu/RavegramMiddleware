@@ -3,77 +3,67 @@ package com.luis.ravegram.service;
 import java.util.List;
 import java.util.Set;
 
-import com.luis.ravegram.exception.*;
-import com.luis.ravegram.model.*;
+import com.luis.ravegram.exception.DataException;
+import com.luis.ravegram.exception.InvalidUserOrPasswordException;
+import com.luis.ravegram.exception.MailException;
+import com.luis.ravegram.exception.UserAlreadyExistsException;
+import com.luis.ravegram.exception.UserDeleteException;
+import com.luis.ravegram.exception.UserNotFoundException;
+import com.luis.ravegram.model.Results;
+import com.luis.ravegram.model.UsuarioDTO;
+import com.luis.ravegram.model.criteria.UsuarioCriteria;
 
 public interface UsuarioService {
 
-
-
-
-	public UsuarioDTO findById(Long id) 
-			throws DataException, ServiceException;
 	
+	public UsuarioDTO findById(Long idUsuario)
+			throws DataException;
+
 	public List<UsuarioDTO> findByIds(List<Long> idsUsuarios) 
-			throws DataException, ServiceException;
+			throws DataException;
 
-
-	public List<UsuarioDTO> findAsistentes(Long idEvento) 
-			throws DataException, ServiceException;
-
-	public List<UsuarioDTO> findSeguidores(Long idUsuario) 
-			throws DataException, ServiceException;
-
-	public List<UsuarioDTO> findSeguidos(Long idUsuario) 
-			throws DataException, ServiceException;
 	
-	public Set<Long> findSeguidosIds(Long idUsuario) throws DataException, ServiceException;
+	public List<UsuarioDTO> findSeguidoresNoAceptadoEvento(Long idUsuario,Long idEvento) 
+			throws DataException ;
 	
-	public List<UsuarioDTO> findSeguidosMutuamente(Long idUsuario) 
-			throws DataException, ServiceException;
+	public Set<Long> findSeguidosIds(Long idUsuario) 
+			throws DataException;
+	
 	
 	public UsuarioDTO findByEmail(String email) 
-			throws DataException, ServiceException;
+			throws DataException;
+	
+	public List<UsuarioDTO> findSeguidores(Long idUsuario) 
+			throws DataException;
+	
+	public List<UsuarioDTO> findSeguidos(Long idUsuario) 
+			throws DataException;
 	
 	public Results<UsuarioDTO> findByCriteria(UsuarioCriteria uc,int startIndex, int pageSize) 
-			throws DataException, ServiceException ;
+			throws DataException;
 
 
-
-
-	/**
-	 * 
-	 * @param email
-	 * @param password
-	 * @return
-	 * @throws InvalidUserOrPasswordException
-	 * @throws ServiceException
-	 */
 	public UsuarioDTO login(String email, String password) 
-			throws InvalidUserOrPasswordException,UserDeleteException, DataException, ServiceException ;
+			throws InvalidUserOrPasswordException,UserDeleteException, DataException;
 	
 	
-	/**
-	 * Registra un nuevo usuario.
-	 * @param u Usuario a registrar, con todos sus datos obligatorios rellenos.
-	 * @return Identificador en el sistema del nuevo usuario.
-	 * @throws UserAlreadyExistsException Cuando el usuario ya existe en el sistema.
-	 * @throws MailException Cuando se produce un error al enviar el email de confirmacion de registro.
-	 * @throws ServiceException En otro caso, por ejemplo, cuando alguno(s) de los datos
-	 * obligatorios no está cumplimentado o su valor es incorrecto.
-	 */
 	public Long signUp(UsuarioDTO u) 
-			throws UserAlreadyExistsException, MailException, ServiceException;
+			throws UserAlreadyExistsException, MailException, DataException ;
 
-
-	public void update(UsuarioDTO u) 
-			throws DataException,ServiceException;
 	
-	public void updateEstado(Long id,Integer idTipoEstadoUsuario) 
-			throws DataException,ServiceException;
+	public void deleteAll(Long usuarioId) 
+			throws DataException;
+
+	public void update(UsuarioDTO usuario,UsuarioDTO usuarioSesion) 
+			throws DataException,UserNotFoundException;
+	
 
 	public void updateUbicacion(Double latitud, Double longitud,Long id) 
-			throws DataException,ServiceException;
+			throws DataException, UserNotFoundException;
+
+	
+	public void updateEstado(Long id,Integer idTipoEstadoUsuario) 
+			throws DataException, UserNotFoundException;
 
 
 }

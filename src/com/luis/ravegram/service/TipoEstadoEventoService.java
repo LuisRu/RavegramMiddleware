@@ -9,6 +9,6 @@ import com.luis.ravegram.model.TipoEstadoEvento;
 public interface TipoEstadoEventoService {
 	
 	public List<TipoEstadoEvento> findAll() 
-			throws DataException, ServiceException;
+			throws DataException;
 
 }

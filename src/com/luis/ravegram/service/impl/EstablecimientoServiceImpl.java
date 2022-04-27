@@ -1,22 +1,21 @@
 package com.luis.ravegram.service.impl;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.SQLException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.luis.ravegram.dao.EstablecimientoDAOImpl;
-import com.luis.ravegram.dao.impl.EstablecimientoDAO;
+import com.luis.ravegram.dao.EstablecimientoDAO;
+import com.luis.ravegram.dao.impl.EstablecimientoDAOImpl;
 import com.luis.ravegram.dao.util.ConnectionManager;
 import com.luis.ravegram.dao.util.JDBCUtils;
 import com.luis.ravegram.exception.DataException;
-import com.luis.ravegram.exception.ServiceException;
-import com.luis.ravegram.model.Establecimiento;
-import com.luis.ravegram.model.EstablecimientoCriteria;
+import com.luis.ravegram.exception.EstablecimientoNotFoundException;
+import com.luis.ravegram.model.EstablecimientoDTO;
+import com.luis.ravegram.model.Results;
+import com.luis.ravegram.model.criteria.EstablecimientoCriteria;
 import com.luis.ravegram.service.EstablecimientoService;
-import com.luis.ravegram.service.util.CalculadoraDistanciaUtil;
 
 public class EstablecimientoServiceImpl implements EstablecimientoService {
 	
@@ -28,111 +27,63 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
 		establecimientoDAO = new EstablecimientoDAOImpl();
 	}
 	
-	
-	@Override
-	public Establecimiento findById(Long idEstablecimiento) throws DataException, ServiceException {
-		Connection c = null;
-		boolean commitOrRollback = false;
-		Establecimiento establecimiento = null;
-		try  {
-			c = ConnectionManager.getConnection();								
-
-			c.setAutoCommit(false);
-
-			establecimiento = establecimientoDAO.findById(c, idEstablecimiento);
-
-
-			commitOrRollback = true;
-
-		} catch (DataException de) { 
-			logger.error("FindByIdService: "+idEstablecimiento+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindByIdService: "+idEstablecimiento+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindById: "+idEstablecimiento+": "+ex.getMessage() ,ex);			
-		} finally {
-			JDBCUtils.closeConnection(c, commitOrRollback);
-		}
-
-		return establecimiento;
-	}
 
 	@Override
-	public List<Establecimiento> findByLocalidad(Long idLocalidad) throws DataException, ServiceException {
+	public EstablecimientoDTO findById(Long idUsuario)
+			throws DataException{
 		Connection c = null;
 		boolean commitOrRollback = false;
-		List <Establecimiento> establecimientos = null;
-		try  {
-			c = ConnectionManager.getConnection();								
-
-			c.setAutoCommit(false);
-
-			establecimientos = establecimientoDAO.findByLocalidad(c, idLocalidad);
-
-
-			commitOrRollback = true;
-
-		} catch (DataException de) { 
-			logger.error("FindByLocalidService: "+idLocalidad+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindByLocalidService: "+idLocalidad+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindByLocalidService: "+idLocalidad+": "+ex.getMessage() ,ex);			
-		} finally {
-			JDBCUtils.closeConnection(c, commitOrRollback);
-		}
-
-		return establecimientos;
-	}
-	
-	@Override
-	public List<Establecimiento> findByCriteria(EstablecimientoCriteria ec, Double latitudUsuario, Double longitudUsuario)
-			throws DataException, ServiceException {
-		Connection c = null;
-		boolean commitOrRollback = false;
-		List <Establecimiento> establecimientos = null;
-		List <Establecimiento> establecimientosOKDistancia = null;
-		Double distancia = null;
+		EstablecimientoDTO establecimiento = null;
 		try  {
 			c = ConnectionManager.getConnection();								
 
 			c.setAutoCommit(false);
 			
-			establecimientos = establecimientoDAO.findByCriteria(c, ec);		
-
-			if (ec.getDistancia() != null) {
-				establecimientosOKDistancia = new ArrayList<Establecimiento>();
-				for (Establecimiento e : establecimientos) {
-					distancia = CalculadoraDistanciaUtil.calcularDistanciaPuntosSuperficieTierra(latitudUsuario, longitudUsuario, e.getLatitud(), e.getLongitud());
-					if (distancia <= ec.getDistancia()) {
-						e.setDistanciaKm(distancia);
-						establecimientosOKDistancia.add(e);
-					}
-				}
-			}else {
-				establecimientosOKDistancia = establecimientos ;		
-			}	
+			establecimiento = establecimientoDAO.findById(c, idUsuario);		
 
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("FindByCriteriaService: "+ec+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindByCriteriaService: "+ec+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindByCriteriaService: "+ec+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findById: "+idUsuario+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findById: "+idUsuario);						
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
+		return establecimiento;
+	}
+	
+	
+	@Override
+	public Results<EstablecimientoDTO> findByCriteria(EstablecimientoCriteria ec,int startIndex, int pageSize)
+			throws DataException{
+		Connection c = null;
+		boolean commitOrRollback = false;
+		Results<EstablecimientoDTO> results = null;
+		try  {
+			c = ConnectionManager.getConnection();								
 
-		return establecimientosOKDistancia;
+			c.setAutoCommit(false);
+			
+			results = establecimientoDAO.findByCriteria(c, ec,startIndex,pageSize);		
+
+
+			commitOrRollback = true;
+
+		} catch (SQLException sqle) { 
+			logger.error("findByCriteria: "+ec+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findByCriteria: "+ec);						
+		} finally {
+			JDBCUtils.closeConnection(c, commitOrRollback);
+		}
+		return results;
 	}
 
 
 
 	@Override
-	public void create(Establecimiento establecimiento) throws DataException, ServiceException {
+	public void create(EstablecimientoDTO establecimiento) 
+			throws DataException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		try  {
@@ -145,12 +96,9 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("CreateService: "+establecimiento+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("CreateService: "+establecimiento+": "+ex.getMessage() ,ex);
-			throw new ServiceException("CreateService: "+establecimiento+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("create: "+establecimiento.getNombre()+": "+sqle.getMessage() ,sqle);
+			throw new DataException("create: "+establecimiento.getNombre());						
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -158,7 +106,8 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
 	}
 
 	@Override
-	public void update(Establecimiento establecimiento) throws DataException, ServiceException {
+	public void update(EstablecimientoDTO establecimiento)
+			throws DataException,EstablecimientoNotFoundException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		try  {
@@ -171,12 +120,9 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("UpdateService: "+establecimiento+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("UpdateService: "+establecimiento+": "+ex.getMessage() ,ex);
-			throw new ServiceException("UpdateService: "+establecimiento+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("update: "+establecimiento.getNombre()+": "+sqle.getMessage() ,sqle);
+			throw new DataException("update: "+establecimiento.getNombre());						
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}

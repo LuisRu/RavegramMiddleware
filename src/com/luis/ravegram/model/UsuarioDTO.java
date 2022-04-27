@@ -19,6 +19,7 @@ public class UsuarioDTO  extends AbstractValueObject{
 	private String contrasena;
 	private Integer tipoEstadoCuenta;
 	private Double distanciaKm;
+	private Double valoracionMedia;
 
 		
 	public UsuarioDTO() {
@@ -155,6 +156,16 @@ public class UsuarioDTO  extends AbstractValueObject{
 
 	public void setDistanciaKm(Double distanciaKm) {
 		this.distanciaKm = distanciaKm;
+	}
+
+
+	public Double getValoracionMedia() {
+		return valoracionMedia;
+	}
+
+
+	public void setValoracionMedia(Double valoracionMedia) {
+		this.valoracionMedia = valoracionMedia;
 	}
 
 

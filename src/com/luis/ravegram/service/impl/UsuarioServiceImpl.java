@@ -4,27 +4,32 @@ package com.luis.ravegram.service.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.luis.ravegram.dao.UsuarioDAOImpl;
-import com.luis.ravegram.dao.impl.UsuarioDAO;
+import com.luis.ravegram.dao.PuntuacionDAO;
+import com.luis.ravegram.dao.SolicitudDAO;
+import com.luis.ravegram.dao.UsuarioDAO;
+import com.luis.ravegram.dao.UsuarioSigueDAO;
+import com.luis.ravegram.dao.impl.PuntuacionDAOImpl;
+import com.luis.ravegram.dao.impl.SolicitudDAOImpl;
+import com.luis.ravegram.dao.impl.UsuarioDAOImpl;
+import com.luis.ravegram.dao.impl.UsuarioSigueDAOImpl;
 import com.luis.ravegram.dao.util.ConnectionManager;
 import com.luis.ravegram.dao.util.JDBCUtils;
 import com.luis.ravegram.exception.DataException;
 import com.luis.ravegram.exception.InvalidUserOrPasswordException;
 import com.luis.ravegram.exception.MailException;
-import com.luis.ravegram.exception.ServiceException;
 import com.luis.ravegram.exception.UserAlreadyExistsException;
 import com.luis.ravegram.exception.UserDeleteException;
-import com.luis.ravegram.model.CuentaEstado;
+import com.luis.ravegram.exception.UserNotFoundException;
 import com.luis.ravegram.model.Results;
-import com.luis.ravegram.model.UsuarioCriteria;
 import com.luis.ravegram.model.UsuarioDTO;
+import com.luis.ravegram.model.criteria.UsuarioCriteria;
+import com.luis.ravegram.service.EventoService;
 import com.luis.ravegram.service.MailService;
 import com.luis.ravegram.service.UsuarioService;
 import com.luis.ravegram.service.util.PasswordEncryptionUtil;
@@ -35,15 +40,25 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	private MailService mailService = null;
 	private UsuarioDAO usuarioDAO = null;
+	private EventoService eventoService = null;
+	private UsuarioSigueDAO usuarioSigueDAO = null;
+	private SolicitudDAO solicitudDAO = null;
+	private PuntuacionDAO puntuacionDAO = null;
 
 	public UsuarioServiceImpl() {
 		mailService = new MailServiceImpl();
 		usuarioDAO = new UsuarioDAOImpl();
+		eventoService = new EventoServiceImpl();
+		usuarioSigueDAO = new UsuarioSigueDAOImpl();
+		solicitudDAO = new SolicitudDAOImpl();
+		puntuacionDAO = new PuntuacionDAOImpl();
 	}
 
 
+
 	@Override
-	public UsuarioDTO findById(Long id) throws DataException, ServiceException {
+	public UsuarioDTO findById(Long idUsuario)
+			throws DataException{
 		Connection c = null;
 		boolean commitOrRollback = false;
 		UsuarioDTO usuario = null;
@@ -52,17 +67,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			c.setAutoCommit(false);
 
-			usuario = usuarioDAO.findById(c, id);		
+			usuario = usuarioDAO.findById(c, idUsuario);		
 
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("FindById: "+id+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindById: "+id+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindById: "+id+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findById: "+idUsuario+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findById: "+idUsuario);						
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -71,7 +83,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
 	@Override
-	public List<UsuarioDTO> findByIds(List<Long> idsUsuarios) throws DataException, ServiceException {
+	public List<UsuarioDTO> findByIds(List<Long> idsUsuarios) throws DataException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		List <UsuarioDTO> usuarios = null;
@@ -85,12 +97,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("FindByIds: "+idsUsuarios+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindByIds: "+idsUsuarios+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindByIds: "+idsUsuarios+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("FindByIds: "+sqle.getMessage() ,sqle);
+			throw new DataException("FindByIds: ");			
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -99,7 +108,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public List<UsuarioDTO> findAsistentes(Long idEvento) throws DataException, ServiceException {
+	public List<UsuarioDTO> findSeguidoresNoAceptadoEvento(Long idUsuario,Long idEvento)
+			throws DataException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		List <UsuarioDTO> usuarios = null;
@@ -108,17 +118,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			c.setAutoCommit(false);
 
-			usuarios = usuarioDAO.findAsistentes(c, idEvento);		
+			usuarios = usuarioDAO.findSeguidoresNoAceptadoEvento(c, idUsuario, idEvento);
 
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("FindAsistentes: "+idEvento+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindAsistentes: "+idEvento+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindAsistentes: "+idEvento+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findSeguidoresNoAceptadoEvento: "+idUsuario+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findSeguidoresNoAceptadoEvento: "+idUsuario);			
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -127,67 +134,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public List<UsuarioDTO> findSeguidores(Long idUsuario) throws DataException, ServiceException {
-		Connection c = null;
-		boolean commitOrRollback = false;
-		List <UsuarioDTO> usuarios = null;
-		try  {
-			c = ConnectionManager.getConnection();								
-
-			c.setAutoCommit(false);
-
-			usuarios = usuarioDAO.findSeguidores(c, idUsuario);		
-
-
-			commitOrRollback = true;
-
-		} catch (DataException de) { 
-			logger.error("FindSeguidores: "+idUsuario+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindSeguidores: "+idUsuario+": "+ex.getMessage() ,ex);
-			throw new ServiceException("FindSeguidores: "+idUsuario+": "+ex.getMessage() ,ex);			
-		} finally {
-			JDBCUtils.closeConnection(c, commitOrRollback);
-		}
-
-		return usuarios;
-	}
-
-
-
-	@Override
-	public List<UsuarioDTO> findSeguidos(Long idUsuario) throws DataException, ServiceException {
-		Connection c = null;
-		boolean commitOrRollback = false;
-		List <UsuarioDTO> usuarios = null;
-		try  {
-			c = ConnectionManager.getConnection();								
-
-			c.setAutoCommit(false);
-
-			usuarios = usuarioDAO.findSeguidos(c, idUsuario);		
-
-
-			commitOrRollback = true;
-
-		} catch (DataException de) { 
-			logger.error("findSeguidos: "+idUsuario+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("findSeguidos: "+idUsuario+": "+ex.getMessage() ,ex);
-			throw new ServiceException("findSeguidos: "+idUsuario+": "+ex.getMessage() ,ex);			
-		} finally {
-			JDBCUtils.closeConnection(c, commitOrRollback);
-		}
-
-		return usuarios;
-	}
-
-
-
-	@Override
-	public Set<Long> findSeguidosIds(Long idUsuario) throws DataException, ServiceException {
+	public Set<Long> findSeguidosIds(Long idUsuario) throws DataException{
 		Connection c = null;
 		boolean commitOrRollback = false;
 		Set <Long> usuariosIds = null;
@@ -201,12 +148,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("findSeguidosIds: "+idUsuario+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("findSeguidosIds: "+idUsuario+": "+ex.getMessage() ,ex);
-			throw new ServiceException("findSeguidosIds: "+idUsuario+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findSeguidosIds: "+idUsuario+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findSeguidosIds: "+idUsuario);			
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -215,49 +159,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 
-	@Override
-	public List<UsuarioDTO> findSeguidosMutuamente(Long idUsuario) throws DataException, ServiceException {
-		Connection c = null;
-		boolean commitOrRollback = false;
-		List <UsuarioDTO> usuariosSeguidos = null;
-		List <UsuarioDTO> usuariosSeguidores = null;
-		List <UsuarioDTO> usuariosSeguidosMutuamente = null;
-		try  {
-			c = ConnectionManager.getConnection();								
 
-			c.setAutoCommit(false);
-
-			usuariosSeguidos = usuarioDAO.findSeguidos(c, idUsuario);
-			usuariosSeguidores = usuarioDAO.findSeguidores(c, idUsuario);
-
-			for (UsuarioDTO usuarioDTO : usuariosSeguidos) {
-				usuarioDTO.getId();
-				for (UsuarioDTO usuarioDTO2 : usuariosSeguidores) {
-					if(usuarioDTO.getId()==usuarioDTO2.getId()) {
-						usuariosSeguidosMutuamente = new ArrayList<UsuarioDTO>();
-						usuariosSeguidosMutuamente.add(usuarioDTO);
-					}
-				}
-			}
-
-
-			commitOrRollback = true;
-
-		} catch (DataException de) { 
-			logger.error("findSeguidosMutuamente: "+idUsuario+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("findSeguidosMutuamente: "+idUsuario+": "+ex.getMessage() ,ex);
-			throw new ServiceException("findSeguidosMutuamente: "+idUsuario+": "+ex.getMessage() ,ex);			
-		} finally {
-			JDBCUtils.closeConnection(c, commitOrRollback);
-		}
-
-		return usuariosSeguidosMutuamente;
-	}
 
 	@Override
-	public UsuarioDTO findByEmail(String email) throws DataException, ServiceException {
+	public UsuarioDTO findByEmail(String email) throws DataException{
 		Connection c = null;
 		boolean commitOrRollback = false;
 		UsuarioDTO usuario = null;
@@ -271,12 +176,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("findByEmail: "+email+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("findByEmail: "+email+": "+ex.getMessage() ,ex);
-			throw new ServiceException("findByEmail: "+email+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findByEmail: "+email+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findByEmail: "+email);				
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -284,15 +186,67 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 
+	@Override
+	public List<UsuarioDTO> findSeguidores(Long idUsuario) 
+			throws DataException{
+		Connection c = null;
+		boolean commitOrRollback = false;
+		List <UsuarioDTO> usuarios = null;
+		try  {
+			c = ConnectionManager.getConnection();								
+
+			c.setAutoCommit(false);
+
+			usuarios = usuarioDAO.findSeguidores(c, idUsuario);
+
+
+			commitOrRollback = true;
+
+		} catch (SQLException sqle) { 
+			logger.error("findSeguidores: "+idUsuario+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findSeguidores: "+idUsuario);			
+		} finally {
+			JDBCUtils.closeConnection(c, commitOrRollback);
+		}
+
+		return usuarios;
+	}
+
+
+	@Override
+	public List<UsuarioDTO> findSeguidos(Long idUsuario) 
+			throws DataException{
+		Connection c = null;
+		boolean commitOrRollback = false;
+		List <UsuarioDTO> usuarios = null;
+		try  {
+			c = ConnectionManager.getConnection();								
+
+			c.setAutoCommit(false);
+
+			usuarios = usuarioDAO.findSeguidos(c, idUsuario);
+
+
+			commitOrRollback = true;
+
+		} catch (SQLException sqle) { 
+			logger.error("findSeguidores: "+idUsuario+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findSeguidores: "+idUsuario);			
+		} finally {
+			JDBCUtils.closeConnection(c, commitOrRollback);
+		}
+
+		return usuarios;
+	}
+
+
 
 	@Override
 	public Results<UsuarioDTO> findByCriteria(UsuarioCriteria uc,int startIndex, int pageSize) 
-			throws DataException, ServiceException {
+			throws DataException{
 		Connection c = null;
 		boolean commitOrRollback = false;
 		Results<UsuarioDTO> results = new Results<UsuarioDTO>();
-		//List <UsuarioDTO> usuariosOKDistancia = null;
-		//Double distancia = null;
 		try  {
 			c = ConnectionManager.getConnection();								
 
@@ -303,12 +257,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("findByCriteria: "+uc.getEdadDesde()+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("findByCriteria: "+uc.getEdadDesde()+": "+ex.getMessage() ,ex);
-			throw new ServiceException("findByCriteria: "+uc.getEdadDesde()+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findByCriteria: "+uc.getBusqueda()+": "+sqle.getMessage() ,sqle);
+			throw new DataException("findByCriteria: "+uc.getBusqueda());			
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -322,7 +273,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
 	public UsuarioDTO login(String email, String password) 
-			throws InvalidUserOrPasswordException,UserDeleteException, DataException, ServiceException {
+			throws InvalidUserOrPasswordException,UserDeleteException, DataException{
 		Connection c = null;
 		UsuarioDTO usuario = null;
 		boolean passwordOK = false; 
@@ -334,22 +285,21 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			usuario = usuarioDAO.findByEmail(c, email); 
 
-			if(usuario.getTipoEstadoCuenta()==CuentaEstado.ELIMINADA) {
+			if(usuario!=null) {
 				
-				throw new UserDeleteException(email);
-				
-			} else {
+					passwordOK= PasswordEncryptionUtil.checkPassword(password, (usuario==null ? null : usuario.getContrasena()));
 
-				passwordOK= PasswordEncryptionUtil.checkPassword(password, (usuario==null ? null : usuario.getContrasena()));
-
-				if ((!passwordOK)) {
-					throw new InvalidUserOrPasswordException(email);
-				}
+					if ((!passwordOK)) {
+						throw new InvalidUserOrPasswordException(email);
+					}
 
 
-				commitOrRollback = true;
+					commitOrRollback = true;
 
+			}else {
+				throw new InvalidUserOrPasswordException(email);
 			}
+			
 		} catch (SQLException sqle) {
 			logger.error("login: "+email+": "+sqle.getMessage() ,sqle);
 			throw new DataException("login: "+email+": "+sqle.getMessage() ,sqle);
@@ -367,7 +317,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	//create
 	@Override
 	public Long signUp(UsuarioDTO u) throws 
-	UserAlreadyExistsException, MailException, ServiceException {
+	UserAlreadyExistsException, MailException, DataException {
 
 		Connection c = null;
 		boolean commitOrRollback = false;
@@ -410,9 +360,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 		return userId;
 	}
 
-
 	@Override
-	public void update(UsuarioDTO usuario) throws DataException, ServiceException {
+	public void deleteAll(Long idUsuario) 
+			throws DataException{
 		Connection c = null;
 		boolean commitOrRollback = false;
 		try  {
@@ -420,29 +370,69 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			c.setAutoCommit(false);
 
-			//TODO Diferencia con tener otro campo
-			if(usuario.getContrasena()!=null) {
+			//borramos las solicitudes creadas por el usuario
+			solicitudDAO.deleteByUsuario(c,idUsuario);
+			
+			//borramos las valoraciones creadas por el usuario
+			puntuacionDAO.deleteByUsuario(c,idUsuario);
+			
+			//borramos sus seguidos y seguidores
+			usuarioSigueDAO.deleteAll(c, idUsuario);
+
+			//borramos sus eventos con sus valoraciones y solicitudes
+			eventoService.deleteAll(idUsuario);
+
+			//borramos el usuario
+			usuarioDAO.deleteById(c, idUsuario);	
+
+
+			commitOrRollback = true;
+
+		} catch (SQLException sqle) { 
+			logger.error("deleteAll: "+idUsuario+": "+sqle.getMessage() ,sqle);	
+			throw new DataException("deleteAll: "+idUsuario+": "+sqle.getMessage() ,sqle);			
+		} finally {
+			JDBCUtils.closeConnection(c, commitOrRollback);
+		}
+	}
+
+
+
+	@Override
+	public void update(UsuarioDTO usuario,UsuarioDTO usuarioSesion) 
+			throws DataException,UserNotFoundException{
+		Connection c = null;
+		boolean commitOrRollback = false;
+		try  {
+			c = ConnectionManager.getConnection();								
+
+			c.setAutoCommit(false);
+
+			// no la cambio
+			if(usuario.getContrasena()==null) {
+				System.out.println(usuarioSesion.getContrasena());
+				usuario.setContrasena(usuarioSesion.getContrasena());
+			}else {
 				usuario.setContrasena(PasswordEncryptionUtil.encryptPassword(usuario.getContrasena()));
 			}
+
 
 			usuarioDAO.update(c, usuario);	
 
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("update: "+usuario.getUserName()+": "+de.getMessage() ,de);	
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("update: "+usuario.getUserName()+": "+ex.getMessage() ,ex);
-			throw new ServiceException("update: "+usuario.getUserName()+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("update: "+usuario.getUserName()+": "+sqle.getMessage() ,sqle);	
+			throw new DataException("update: "+usuario.getUserName()+": "+sqle.getMessage() ,sqle);			
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
 	}
 
 	@Override
-	public void updateUbicacion(Double latitud, Double longitud, Long id) throws DataException, ServiceException {
+	public void updateUbicacion(Double latitud, Double longitud, Long id)
+			throws DataException, UserNotFoundException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		try  {
@@ -455,12 +445,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("updateUbicacion: "+id+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("updateUbicacion: "+id+": "+ex.getMessage() ,ex);
-			throw new ServiceException("updateUbicacion: "+id+": "+ex.getMessage() ,ex);			
+
+		} catch (SQLException sqle) { 
+			logger.error("updateUbicacion: "+id+": "+sqle.getMessage() ,sqle);	
+			throw new DataException("updateUbicacion: "+id+": "+sqle.getMessage() ,sqle);		
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
@@ -472,7 +460,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
 	@Override
-	public void updateEstado(Long id, Integer idTipoEstadoUsuario) throws DataException, ServiceException {
+	public void updateEstado(Long id, Integer idTipoEstadoUsuario)
+			throws DataException, UserNotFoundException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		try  {
@@ -485,12 +474,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("updateEstado: "+id+": "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("updateEstado: "+id+": "+ex.getMessage() ,ex);
-			throw new ServiceException("updateEstado: "+id+": "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("updateEstado: "+id+": "+sqle.getMessage() ,sqle);	
+			throw new DataException("updateEstado: "+id+": "+sqle.getMessage() ,sqle);	
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}

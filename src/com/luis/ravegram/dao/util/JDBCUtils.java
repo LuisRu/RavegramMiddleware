@@ -5,13 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.luis.ravegram.dao.UsuarioDAOImpl;
 import com.luis.ravegram.exception.DataException;
 
 
@@ -129,17 +129,18 @@ public class JDBCUtils {
 
 
 
-	public static void setParameter(PreparedStatement ps, int parameterIndex, Date value, boolean nullable) 
-			throws SQLException {
+	public static final void setParameter(PreparedStatement ps, int parameterIndex, 
+			Date value, boolean nullable) 
+					throws SQLException {
 		if (value!=null) {
-			ps.setDate(parameterIndex, 
-					new java.sql.Date(value.getTime()));
+			// ps.setDate(parameterIndex, new java.sql.Date(value.getTime()));
+			ps.setTimestamp(parameterIndex, new Timestamp(value.getTime()));
 		} else {
 			if (nullable) {
 				ps.setNull(parameterIndex, Types.DATE);
-			}
+			} 
 		}
-	}
+	}	
 
 
 
@@ -199,7 +200,9 @@ public class JDBCUtils {
 	public static void closeConnection(Connection connection, boolean commitOrRollback)
 		throws DataException {
         try {
-        	logger.info("CommitOrRollback close connection "+commitOrRollback);
+        	if (logger.isInfoEnabled()) {
+        		logger.info("CommitOrRollback close connection "+commitOrRollback);
+			}
             if (connection != null) {
                 if (commitOrRollback) {
                 	connection.commit();

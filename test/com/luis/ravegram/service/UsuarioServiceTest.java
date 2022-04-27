@@ -3,27 +3,22 @@ package com.luis.ravegram.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 
 import com.luis.ravegram.exception.InvalidUserOrPasswordException;
 import com.luis.ravegram.exception.MailException;
 import com.luis.ravegram.exception.ServiceException;
 import com.luis.ravegram.exception.UserAlreadyExistsException;
 import com.luis.ravegram.model.Results;
-import com.luis.ravegram.model.UsuarioCriteria;
 import com.luis.ravegram.model.UsuarioDTO;
-import com.luis.ravegram.service.impl.EventoServiceImpl;
+import com.luis.ravegram.model.criteria.UsuarioCriteria;
 import com.luis.ravegram.service.impl.UsuarioServiceImpl;
 
 public class UsuarioServiceTest {
 
 	private UsuarioService usuarioService = null;
-	private EventoService eventoService = null;
-	private UsuarioDTO usuario = null;
 
 	public UsuarioServiceTest() {
 		usuarioService = new UsuarioServiceImpl();
-		eventoService = new EventoServiceImpl();
 	}
 
 	public void leerLista(List<UsuarioDTO> a) {
@@ -34,119 +29,28 @@ public class UsuarioServiceTest {
 
 
 	public void testFindById() {
-		System.out.println("Testing find by ID...");
-		try {
-			System.out.println(usuarioService.findById(8L)); 
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-
-	public void testFindByIds() {
-		System.out.println("Testing find by Ids...");
-		try {
-			List<Long> idsSeguidores = new ArrayList<Long>();
-			for (UsuarioDTO usuario : usuarioService.findSeguidores(1L)) {
-				idsSeguidores.add(usuario.getId());
-			}
-			for (Long long1 : idsSeguidores) {
-				System.out.println(long1);
-			}
-			leerLista(usuarioService.findByIds(idsSeguidores));  
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-
-
-	public void testFindAsistentes() {
-		System.out.println("Testing findAsistes...");
-		try {
-			leerLista(usuarioService.findAsistentes(1L));
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-
-	public void testFindSeguidores() {
-		System.out.println("Testing findSeguidores...");
-		try {
-			leerLista(usuarioService.findSeguidores(1L));
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-	public void testFindSeguidos() {
-		System.out.println("Testing findSeguidores...");
-		try {
-			leerLista(usuarioService.findSeguidos(1L));
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-
-
-	public void testFindSeguidosIds() {
-		System.out.println("Testing FindSeguidosIds...");
-		try {
-			Set<Long> usuariosIds = null;
-			usuariosIds=usuarioService.findSeguidosIds(1L);
-			for (Long ids:usuariosIds) {
-				System.out.println(ids);
-			}
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-	public void testFindSeguidosMutuamente() {
-		System.out.println("Testing find seguidos mutuamente...");
-		try {
-			leerLista(usuarioService.findSeguidosMutuamente(1L));
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
-
-	public void testFindByCriteria() {
-		System.out.println("Testing find by criteria...");
-		UsuarioCriteria uc = new UsuarioCriteria();
+		System.out.println("Testing testFindById..");
 		UsuarioDTO usuario = null;
-		double latitud=42.611796d;
-		double longitud=-7.773983d;
 		try {
-			System.out.println(usuario);
-			uc.setIdBuscador(1L);
-			uc.setBusqueda("l");
-			int startIndex = 1;
-			int pageSize = 5;
-			Results<UsuarioDTO> results = null;
+			usuario = usuarioService.findById(2L);
+			System.out.println(usuario.getUserName());
+		}catch (ServiceException se) {
+			System.out.println("Error");
+			se.printStackTrace();
+		}	
+	}
+
+	
+	public void testFindByIds() {
+		System.out.println("Testing testFindByIds..");
+		List<Long> idsUsuarios = new ArrayList<Long>();
+		idsUsuarios.add(1L);
+		idsUsuarios.add(4L);
+		idsUsuarios.add(3L);
+	
 		
-			do {
-				results = usuarioService.findByCriteria(uc,startIndex,pageSize);
- 
-				System.out.println("Encontrados "+results.getTotal()+" resultados");
-				System.out.println("Mostrando del "+startIndex+" al "+(startIndex+results.getData().size()-1));
-				startIndex = startIndex+results.getData().size();
-				for (UsuarioDTO u: results.getData()) {
-					System.out.println("\t"+u);
-				}
-				
-			} while (startIndex<=results.getTotal());
-			
-			
+		try {
+			System.out.println(usuarioService.findByIds(idsUsuarios)); 
 		}catch (ServiceException se) {
 			System.out.println("Error");
 			se.printStackTrace();
@@ -154,6 +58,29 @@ public class UsuarioServiceTest {
 	}
 
 
+	public void testFindSeguidoresNoAceptadoEvento() {
+		System.out.println("Testing FindSeguidoresNoAceptadoEvento...");
+		try {
+			leerLista(usuarioService.findSeguidoresNoAceptadoEvento(2L,1L));
+		}catch (ServiceException se) {
+			System.out.println("Error");
+			se.printStackTrace();
+		}	
+	}
+
+	public void testSeguidosIds() {
+		System.out.println("Testing testSeguidosIds...");
+		try {
+			for (Long id : usuarioService.findSeguidosIds(1L)) {
+				System.out.println(id);
+			}
+		}catch (ServiceException se) {
+			System.out.println("Error");
+			se.printStackTrace();
+		}	
+	}
+	
+	
 	public void testFindByEmail() {
 		System.out.println("Testing find by email...");
 		try {
@@ -163,6 +90,45 @@ public class UsuarioServiceTest {
 			se.printStackTrace();
 		}	
 	}
+	
+	public void testFindSeguidores() {
+		System.out.println("Testing testFindSeguidores...");
+		try {
+			leerLista(usuarioService.findSeguidores(2L));
+		}catch (ServiceException se) {
+			System.out.println("Error");
+			se.printStackTrace();
+		}	
+	}
+	
+	public void testFindSeguidos() {
+		System.out.println("Testing testFindSeguidos...");
+		try {
+			leerLista(usuarioService.findSeguidos(2L));
+		}catch (ServiceException se) {
+			System.out.println("Error");
+			se.printStackTrace();
+		}	
+	}
+
+
+
+
+	public void testFindByCriteria() {
+		System.out.println("Testing find by criteria...");
+		UsuarioCriteria uc = new UsuarioCriteria();
+		int startIndex = 1;
+		int pageSize = 5;
+		Results<UsuarioDTO> results = null;
+		try {
+			results = usuarioService.findByCriteria(uc, startIndex, pageSize);
+			leerLista(results.getData());
+		}catch (Exception se) {
+			System.out.println("Error");
+			se.printStackTrace();
+		}	
+	}
+
 
 
 
@@ -184,7 +150,7 @@ public class UsuarioServiceTest {
 
 	public void testSignUp() {
 		System.out.println("Testing signUp...");
-		usuario = new UsuarioDTO();
+		UsuarioDTO usuario = new UsuarioDTO();
 		Calendar c = Calendar.getInstance();		
 		c.set(Calendar.YEAR, c.get(Calendar.YEAR)-20);
 
@@ -215,33 +181,39 @@ public class UsuarioServiceTest {
 	}
 
 
-
-
-//	public void testCompartir() {
-//		System.out.println("Testing compartir...");
-//		List<Long> idsAmigos = new ArrayList<Long>();
-//		idsAmigos.add(18L);
-//		idsAmigos.add(1L);
-//		idsAmigos.add(3L);
-//		idsAmigos.add(4L);
-//		idsAmigos.add(5L);
-//		try {
-//			eventoService.compartir(2L, 2L, idsAmigos);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
-
-
 	public void testUpdate() {
 		System.out.println("Testing update...");
+		UsuarioDTO usuario = new UsuarioDTO();
+		UsuarioDTO usuarioSesion = new UsuarioDTO();
 		Calendar c = Calendar.getInstance();		
-		c.set(Calendar.YEAR, c.get(Calendar.YEAR),c.get(Calendar.HOUR));	
+		c.set(Calendar.YEAR, c.get(Calendar.YEAR)-20);
+
+		long num = System.currentTimeMillis();
 		try {
-			usuario = usuarioService.findById(1L);
-			usuario.setBiografia("Prueba dia");
-			usuarioService.update(usuario);
+			usuario.setUserName("manuela"+num);
+			usuario.setEmail(usuario.getUserName()+"@g23434mail.com");
+			usuario.setContrasena("abc12345");
+			usuario.setFechaNacimiento(c.getTime());
+			usuario.setLatitud(1d);
+			usuario.setLongitud(1d);
+			usuario.setTelefono("692311234");
+			usuario.setBiografia("Hola esto es un test");
+			usuario.setId(1L);
+			
+			usuarioSesion.setUserName("manuela"+num);
+			usuarioSesion.setEmail(usuario.getUserName()+"@g23434mail.com");
+			usuarioSesion.setContrasena("abc12345");
+			usuarioSesion.setFechaNacimiento(c.getTime());
+			usuarioSesion.setLatitud(1d);
+			usuarioSesion.setLongitud(1d);
+			usuarioSesion.setTelefono("692311234");
+			usuarioSesion.setBiografia("Hola esto es un test");
+			usuarioSesion.setId(1L);
+			
+			usuarioService.update(usuario,usuarioSesion);
+			
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -273,20 +245,19 @@ public class UsuarioServiceTest {
 
 
 
+
 	public static void main(String args[]) {
 		UsuarioServiceTest test = new UsuarioServiceTest();
-		//test.testFindById();
-		//test.testFindByIds();
-		//test.testFindAsistentes();
-		//test.testFindSeguidores();
+		test.testFindById();
+//		test.testFindByIds();
+//		test.testFindSeguidoresNoAceptadoEvento();
+//		test.testSeguidosIds();
+//		test.testFindByEmail();
+//		test.testFindSeguidores();
 //		test.testFindSeguidos();
-//		test.testFindSeguidsosIds();
-		//test.testFindSeguidosMutuamente();
-		//test.testFindByEmail();
-		test.testFindByCriteria();
-		//test.testLogin();
+//		test.testFindByCriteria();
+//		//test.testLogin();
 		//test.testSignUp();
-		//test.testCompartir();
 		//test.testUpdate();
 		//test.testUpdateEstado();
 		//test.testUpdateUbicacion();

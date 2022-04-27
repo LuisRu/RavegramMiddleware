@@ -32,7 +32,7 @@ public class EventoDTO extends AbstractValueObject{
 	private String tipoEstadoEvento;
 	private Long idTipoMusica;
 	private String tipoMusica;
-	private Double distanciaKm;
+	private Double distanciaKm ;
 	
 	public EventoDTO() {
 	}

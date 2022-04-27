@@ -1,20 +1,19 @@
 package com.luis.ravegram.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.luis.ravegram.exception.ServiceException;
-import com.luis.ravegram.model.EventoDTO;
 import com.luis.ravegram.model.SolicitudDTO;
+import com.luis.ravegram.model.criteria.SolicitudCriteria;
 import com.luis.ravegram.service.impl.SolicitudServiceImpl;
 
 public class SolicitudServiceTest {
 	
 	private SolicitudService solicitudService = null;
-	private SolicitudDTO solicitud = null;
 
 	public SolicitudServiceTest() {
 		solicitudService = new SolicitudServiceImpl();
-		solicitud = new SolicitudDTO();
 		
 	}
 
@@ -23,87 +22,103 @@ public class SolicitudServiceTest {
 			System.out.println(solicitud.getNombreUsuario()+" "+solicitud.getNombreEvento()+" "+solicitud.getNombreEstado());
 		}
 	}
-
-	public void testSolicitudDeUsuarioAEvento() {
-		System.out.println("Testing solicitud de usuario a evento...");
+	
+	
+	public void testFindByUsuarioEvento() {
+		System.out.println("Testing testFindByUsuarioEvento...");
+		SolicitudDTO solicitud = null;
 		try {
-			solicitud.setIdUsuario(1L);
-			solicitud.setIdEvento(2L);
-			solicitudService.solicitudDeUsuarioAEvento(solicitud); 
-		}catch (ServiceException se) {
+			solicitud = solicitudService.findByUsuarioEvento(2L,2L);
+			System.out.println(solicitud.getNombreEvento());
+		}catch (Exception e) {
 			System.out.println("Error");
-			se.printStackTrace();
+			e.printStackTrace();
+		}	
+	}
+			 
+			
+	public void testUsuarioSolicita() {
+		System.out.println("Testing testUsuarioSolicita...");
+		try {
+			solicitudService.usuarioSolicita(1L,2L); 
+		}catch (Exception e) {
+			System.out.println("Error");
+			e.printStackTrace();
 		}	
 	}
 	
 	
-	public void testSolicitudDeEventoAUsuario() {
-		System.out.println("Testing solicitud de evento a usuario...");
+	public void testEventoInvita() {
+		System.out.println("Testing testEventoInvita...");
 		try {
-			solicitud.setIdUsuario(10L);
-			solicitud.setIdEvento(2L);
-			solicitudService.solicitudDeEventoAUsuario(solicitud); 
-		}catch (ServiceException se) {
+			solicitudService.eventoInvita(2L,2L);
+		}catch (Exception e) {
 			System.out.println("Error");
-			se.printStackTrace();
+			e.printStackTrace();
 		}	
 	}
 	
-	public void testAceptarSolicitud() {
-		System.out.println("Testing aceptar solicitud...");
+	public void testAnadirUsuarios() {
+		System.out.println("Testing testAnadirUsuarios...");
 		try {
-			solicitudService.aceptarSolicitud(solicitudService.findByIdUsuarioIdEvento(1L,2L));
-		}catch (ServiceException se) {
+			List<Long> idsUsuarios = new ArrayList<Long>();
+			idsUsuarios.add(1L);
+			idsUsuarios.add(2L);
+			
+		
+			solicitudService.anadirUsuarios(2l, idsUsuarios); 
+		}catch (Exception e) {
 			System.out.println("Error");
-			se.printStackTrace();
+			e.printStackTrace();
 		}	
 	}
 	
-	public void testHistorialSolicitudes() {
-		System.out.println("Testing historial solicitudes...");
+	public void testFindByCriteria() {
+		System.out.println("Testing testFindByCriteria...");
 		try {
-			leerLista(solicitudService.historialSolicitudes(1L));
-		}catch (ServiceException se) {
+			SolicitudCriteria sc = new SolicitudCriteria();
+			sc.setIdEvento(1L);
+			sc.setIdUsuario(1L);
+			leerLista(solicitudService.findByCriteria(sc));
+		}catch (Exception e) {
 			System.out.println("Error");
-			se.printStackTrace();
+			e.printStackTrace();
 		}	
 	}
 	
-	public void testFindByIdUsuarioIdEvento() {
-		System.out.println("Testing find by IdUsuario y IdEvento...");
+	public void testFindSolicitudesPendientes() {
+		System.out.println("Testing testFindSolicitudesPendientes...");
 		try {
-			System.out.println(solicitudService.findByIdUsuarioIdEvento(1L,2L)); 
-		}catch (ServiceException se) {
+			leerLista(solicitudService.findSolicitudesPendientes(1l));
+		}catch (Exception e) {
 			System.out.println("Error");
-			se.printStackTrace();
+			e.printStackTrace();
 		}	
 	}
 	
-	public void testSolicitudesAMisEventosPendientesDeAprobar() {
-		System.out.println("Testing find solicitudes a mis eventos pendientes de aprobar...");
+	public void testFindInvitacionesPendientes() {
+		System.out.println("Testing testFindInvitacionesPendientes...");
 		try {
-			leerLista(solicitudService.solicitudesAMisEventosPendientes(2L,0D,0D)); 
-		}catch (ServiceException se) {
+			solicitudService.findInvitacionesPendientes(1l);
+		}catch (Exception e) {
 			System.out.println("Error");
-			se.printStackTrace();
+			e.printStackTrace();
 		}	
 	}
 	
-	public void testInvitacioneAEventosPendientesDeAprobar() {
-		System.out.println("Testing find invitaciones a eventos pendientes de aprobar...");
-		try {
-			leerLista(solicitudService.invitacionesAEventosPendientesDeAprobar(1L)); 
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
+	
+	
+	
 	
 
 	public void testUpdate() {
 		System.out.println("Testing update...");
 		try {
-			SolicitudDTO solicitud = solicitudService.findByIdUsuarioIdEvento(1L, 2L);
+			SolicitudCriteria sc = new SolicitudCriteria();
+			sc.setIdEvento(2L);
+			sc.setIdUsuario(2L);
+			List<SolicitudDTO> solicitudes = solicitudService.findByCriteria(sc);
+			SolicitudDTO solicitud = solicitudes.get(0);
 			solicitud.setIdTipoEstado(2L);
 			solicitudService.update(solicitud); 
 		}catch (ServiceException se) {
@@ -112,27 +127,20 @@ public class SolicitudServiceTest {
 		}	
 	}
 	
-	public void testUpdateEstadoSolicitudesEvento() {
-		System.out.println("Testing find invitaciones a eventos pendientes de aprobar...");
-		try {
-			solicitudService.updateEstadoSolicitudesEvento(2L, 3L); 
-		}catch (ServiceException se) {
-			System.out.println("Error");
-			se.printStackTrace();
-		}	
-	}
+	
+	
+
 	
 	public static void main(String args[]) {
 		SolicitudServiceTest test = new SolicitudServiceTest();
-//		test.testSolicitudDeUsuarioAEvento();
-//		test.testSolicitudDeEventoAUsuario();
-//		test.testAceptarSolicitud();
-//		test.testHistorialSolicitudes();
-//		test.testFindByIdUsuarioIdEvento();
-test.testSolicitudesAMisEventosPendientesDeAprobar();
-//		test.testInvitacioneAEventosPendientesDeAprobar();
+		test.testFindByUsuarioEvento();
+		//test.testUsuarioSolicita();
+	//	test.testEventoInvita();
+//		test.testAnadirUsuarios();
+	//	test.testFindByCriteria();
+		//test.testFindSolicitudesPendientes();
+		//test.testFindInvitacionesPendientes();
 //		test.testUpdate();
-	//	test.testUpdateEstadoSolicitudesEvento();
 	}
 
 }

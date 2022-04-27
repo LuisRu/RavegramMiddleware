@@ -1,17 +1,17 @@
 package com.luis.ravegram.service.impl;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.luis.ravegram.dao.TipoEstadoEventoDAOImpl;
-import com.luis.ravegram.dao.impl.TipoEstadoEventoDAO;
+import com.luis.ravegram.dao.TipoEstadoEventoDAO;
+import com.luis.ravegram.dao.impl.TipoEstadoEventoDAOImpl;
 import com.luis.ravegram.dao.util.ConnectionManager;
 import com.luis.ravegram.dao.util.JDBCUtils;
 import com.luis.ravegram.exception.DataException;
-import com.luis.ravegram.exception.ServiceException;
 import com.luis.ravegram.model.TipoEstadoEvento;
 import com.luis.ravegram.service.TipoEstadoEventoService;
 
@@ -28,11 +28,10 @@ public class TipoEstadoEventoServiceImpl implements TipoEstadoEventoService{
 
 	@Override
 	public List<TipoEstadoEvento> findAll() 
-			throws DataException, ServiceException {
+			throws DataException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		List<TipoEstadoEvento> estadosEventos = null;
-		
 		try  {
 			c = ConnectionManager.getConnection();								
 
@@ -42,12 +41,9 @@ public class TipoEstadoEventoServiceImpl implements TipoEstadoEventoService{
 			
 			commitOrRollback = true;
 
-		} catch (DataException de) { 
-			logger.error("FindAll: "+de.getMessage() ,de);
-			throw de;			
-		} catch (Exception ex) {
-			logger.error("FindAll: "+ex.getMessage() ,ex);
-			throw new ServiceException("FindAll: "+ex.getMessage() ,ex);			
+		} catch (SQLException sqle) { 
+			logger.error("findAll : "+sqle.getMessage() ,sqle);
+			throw new DataException("findAll: ");						
 		} finally {
 			JDBCUtils.closeConnection(c, commitOrRollback);
 		}
