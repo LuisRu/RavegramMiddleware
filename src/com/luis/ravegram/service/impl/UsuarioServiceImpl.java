@@ -335,16 +335,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 			u.setContrasena(PasswordEncryptionUtil.encryptPassword(u.getContrasena()));
 			userId = usuarioDAO.create(c, u);		
 
-			StringBuilder welcomeMsgSb = new StringBuilder("Hola ")
-					.append(u.getUserName())
-					.append(", Bienvenido a...")
-					.append(" ...");
+			StringBuilder welcomeMsgSb = new StringBuilder("Hola,").append(u.getUserName())
+					.append(" buscar tu primer evento!");
 
 			String welcomeMsg = welcomeMsgSb.toString();
 
 
 			mailService.sendEmail("ravegram98@gmail.com", 
-					("Bienvenido a Ravegram..."), 
+					("Bienvenido a Ravegram!"), 
 					welcomeMsg, 
 					u.getEmail());
 

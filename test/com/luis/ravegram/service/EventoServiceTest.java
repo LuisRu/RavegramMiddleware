@@ -142,7 +142,7 @@ public class EventoServiceTest {
 		try {
 			List<Long> listaAmigos = new ArrayList<Long>();
 			listaAmigos.add(12L);
-			eventoService.compartir(1l, 3l,20.000D, 20.0000D, listaAmigos);
+			eventoService.compartir(1l, 3l,20.000D, 20.0000D, listaAmigos,"url");
 			
 		}catch (Exception se) {
 			System.out.println("Error");
