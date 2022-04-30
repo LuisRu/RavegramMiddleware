@@ -408,7 +408,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 			// no la cambio
 			if(usuario.getContrasena()==null) {
-				System.out.println(usuarioSesion.getContrasena());
 				usuario.setContrasena(usuarioSesion.getContrasena());
 			}else {
 				usuario.setContrasena(PasswordEncryptionUtil.encryptPassword(usuario.getContrasena()));

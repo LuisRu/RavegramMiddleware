@@ -653,7 +653,6 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 			JDBCUtils.setParameter(preparedStatement, i++, usuario.getUserName());
 			JDBCUtils.setParameter(preparedStatement, i++, usuario.getEmail());
 			JDBCUtils.setParameter(preparedStatement, i++, usuario.getContrasena());
-			System.out.println(usuario.getContrasena());
 			JDBCUtils.setParameter(preparedStatement, i++, usuario.getFechaNacimiento());
 			JDBCUtils.setParameter(preparedStatement, i++, usuario.getSexo(),true);
 			JDBCUtils.setParameter(preparedStatement, i++, usuario.getLatitud());
