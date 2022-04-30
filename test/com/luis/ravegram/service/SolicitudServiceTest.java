@@ -99,7 +99,7 @@ public class SolicitudServiceTest {
 	public void testFindInvitacionesPendientes() {
 		System.out.println("Testing testFindInvitacionesPendientes...");
 		try {
-			solicitudService.findInvitacionesPendientes(1l);
+			leerLista(solicitudService.findInvitacionesPendientes(2l)); 
 		}catch (Exception e) {
 			System.out.println("Error");
 			e.printStackTrace();
@@ -133,13 +133,13 @@ public class SolicitudServiceTest {
 	
 	public static void main(String args[]) {
 		SolicitudServiceTest test = new SolicitudServiceTest();
-		test.testFindByUsuarioEvento();
+		//test.testFindByUsuarioEvento();
 		//test.testUsuarioSolicita();
 	//	test.testEventoInvita();
 //		test.testAnadirUsuarios();
 	//	test.testFindByCriteria();
 		//test.testFindSolicitudesPendientes();
-		//test.testFindInvitacionesPendientes();
+		test.testFindInvitacionesPendientes();
 //		test.testUpdate();
 	}
 

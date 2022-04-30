@@ -342,8 +342,8 @@ public class EventoServiceImpl implements EventoService {
 	}
 
 	@Override
-	public void compartir(Long idUsuarioComparte, Long idEvento, Double latitudUsuario, Double longitudUsuario,
-			List<Long> idAmigos) throws MailException, DataException {
+	public void compartir(Long idUsuarioComparte, Long idEvento, Double latitudUsuario, Double longitudUsuario,List<Long> idAmigos,String URL) 
+			throws MailException, DataException {
 		Connection c = null;
 		boolean commitOrRollback = false;
 		UsuarioDTO uComparte = null;
@@ -363,9 +363,7 @@ public class EventoServiceImpl implements EventoService {
 
 			for (UsuarioDTO amigo : amigos) {
 				mailService.sendEmail("ravegram98@gmail.com", "Nos apuntamos a " + eCompartido.getNombre(),
-						"Hola " + amigo.getUserName() + ", " + " Tu amigo " + uComparte.getUserName()
-								+ " te sugiere que vayas a " + eCompartido.getNombre() + " el "
-								+ eCompartido.getFechaHora() + "." + ".... enlace ",
+						"Hola " + amigo.getUserName() + ", " + " tu amigo " + uComparte.getUserName()+ " te sugiere que vayas a " + eCompartido.getNombre() + " el "+ eCompartido.getFechaHora() + ". " + URL,
 						amigo.getEmail());
 			}
 

@@ -208,7 +208,7 @@ public class SolicitudDAOImpl implements SolicitudDAO {
 			// Compose SQL			
 			StringBuilder sql = new StringBuilder(QUERY_BASE_FIND)
 					.append(" where ues.id_tipo_estado = 1 "
-							+ " AND ues.ID_EVENTO NOT IN (SELECT ID  "
+							+ " AND ues.ID_USUARIO =? AND ues.ID_EVENTO NOT IN (SELECT ID  "
 							+ " FROM evento "
 							+ " where ID_USUARIO = ?)"); 
 
@@ -216,6 +216,7 @@ public class SolicitudDAOImpl implements SolicitudDAO {
 			preparedStatement = c.prepareStatement(sql.toString(),ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
 			int i  = 1;
+			JDBCUtils.setParameter(preparedStatement, i++,idUsuario);
 			JDBCUtils.setParameter(preparedStatement, i++,idUsuario);
 
 			rs = preparedStatement.executeQuery();

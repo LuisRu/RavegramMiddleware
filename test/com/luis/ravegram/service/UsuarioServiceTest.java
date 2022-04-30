@@ -12,6 +12,7 @@ import com.luis.ravegram.model.Results;
 import com.luis.ravegram.model.UsuarioDTO;
 import com.luis.ravegram.model.criteria.UsuarioCriteria;
 import com.luis.ravegram.service.impl.UsuarioServiceImpl;
+import com.luis.ravegram.service.util.PasswordEncryptionUtil;
 
 public class UsuarioServiceTest {
 
@@ -31,6 +32,7 @@ public class UsuarioServiceTest {
 	public void testFindById() {
 		System.out.println("Testing testFindById..");
 		UsuarioDTO usuario = null;
+		
 		try {
 			usuario = usuarioService.findById(2L);
 			System.out.println(usuario.getUserName());
@@ -253,8 +255,8 @@ public class UsuarioServiceTest {
 //		test.testFindSeguidoresNoAceptadoEvento();
 //		test.testSeguidosIds();
 //		test.testFindByEmail();
-//		test.testFindSeguidores();
-//		test.testFindSeguidos();
+		test.testFindSeguidores();
+		test.testFindSeguidos();
 //		test.testFindByCriteria();
 //		//test.testLogin();
 		//test.testSignUp();

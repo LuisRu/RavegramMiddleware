@@ -139,6 +139,8 @@ public class SolicitudServiceImpl implements SolicitudService {
 			}else if (solicitud.getIdTipoEstado() == SolicitudEstado.SOLICITADO){
 				solicitud.setIdTipoEstado(SolicitudEstado.ACEPTADO);
 				solicitudDAO.update(c,solicitud);
+			}else if (solicitud.getIdTipoEstado() == SolicitudEstado.ACEPTADO || solicitud.getIdTipoEstado() == SolicitudEstado.INVITADO ){
+				//TODO exception avisando de que ya esta invitado o aceptado?
 			}else {
 
 				throw new RequestInvalidStateException("Invalid request state: "+solicitud.getIdTipoEstado());

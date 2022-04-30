@@ -40,7 +40,7 @@ public interface EventoService {
 			throws DataException,EventoNotFoundException;
 			
 			
-	public void compartir(Long idUsuarioComparte,Long idEvento,Double latitudUsuario, Double longitudUsuario,List<Long> idAmigos) 
+	public void compartir(Long idUsuarioComparte,Long idEvento,Double latitudUsuario, Double longitudUsuario,List<Long> idAmigos,String URL) 
 			throws MailException, DataException ;
 	
 	

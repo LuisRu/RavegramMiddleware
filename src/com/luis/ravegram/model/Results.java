@@ -6,7 +6,7 @@ import java.util.List;
 public class Results<T> {
 
 	private List<T> data = null;
-	private long total = 0;
+	private Integer total = 0;
 
 	public Results() {
 		this.data = new ArrayList<T>();
@@ -20,11 +20,11 @@ public class Results<T> {
 		this.data = data;
 	}
 
-	public long getTotal() {
+	public Integer getTotal() {
 		return total;
 	}
 
-	public void setTotal(long total) {
+	public void setTotal(Integer total) {
 		this.total = total;
 	}
 }

@@ -438,11 +438,11 @@ public class UsuarioDAOImpl implements UsuarioDAO {
 				first = false;
 			}
 			if(uc.getEdadDesde()!=null) {
-				DAOUtils.addClause(sql, first," u.fecha_nacimiento >= ? ");
+				DAOUtils.addClause(sql, first," u.fecha_nacimiento <= ? ");
 				first = false;
 			}
 			if(uc.getEdadHasta()!=null) {
-				DAOUtils.addClause(sql, first," u.fecha_nacimiento <= ? ");
+				DAOUtils.addClause(sql, first," u.fecha_nacimiento >= ? ");
 				first = false;
 			}
 
